@@ -83,6 +83,10 @@ class Distribution{
             return;
         }
 
+        virtual ~Distribution(){
+
+        }
+
     protected:
 
         virtual void generate_cdf(){}
@@ -106,8 +110,8 @@ float normal_distrib(float x, float moyenne=0.0, float std_dev=1.0){
 
 class NormalDistribution : public Distribution{
     public:
-        NormalDistribution(float avg=0.0, float std_dev=1.0, int nb_samples=80, float minBound = -1.0, float maxBound = 1.0){
-            this->nb_samples = nb_samples;
+        NormalDistribution(float avg=0.0, float std_dev=1.0, int nbsamples=80, float minBound = -1.0, float maxBound = 1.0){
+            this->nb_samples = nbsamples;
             this->average = avg;
             this->standard_deviation = std_dev;
             this->min_boundary = minBound;
@@ -115,7 +119,12 @@ class NormalDistribution : public Distribution{
             this->generate_cdf();
         }
 
+        ~NormalDistribution(){
+            delete[] this->cdf;
+        }
+
         void apply_to_uniforms(std::vector<float>& data) override{
+
             for(float& f : data){
                 float *ptr = std::lower_bound(cdf, cdf + nb_samples + 1, f);
                 int off = (int)(ptr - cdf - 1);
@@ -128,7 +137,8 @@ class NormalDistribution : public Distribution{
     private:
 
         void generate_cdf() override{
-            float cdf[nb_samples + 1], dx = (max_boundary - min_boundary) / (float)nb_samples, sum = 0.0f; 
+            float* cdf = new float [nb_samples + 1];
+            float dx = (max_boundary - min_boundary) / (float)nb_samples, sum = 0.0f; 
             cdf[0] = 0.0f;
             cdf[nb_samples] = 1.0f;
 
@@ -153,6 +163,21 @@ class NormalDistribution : public Distribution{
         float max_boundary;
 };
 
+class ExponentialDistribution : public Distribution{
+    public:
+        void apply_to_uniforms(std::vector<float>& data) override{
+            for(float& f : data){
+                f = -log(f) / this->lambda;
+            }
+        }
+        
+        ExponentialDistribution(float l=1.0){
+            this->lambda = l;
+        }
+        
+    private:
+        float lambda;
+};
 
 class QuantumRandom{
 
@@ -185,6 +210,7 @@ class QuantumRandom{
         float& operator[](u_int i){
             return this->data[i];
         }
+
 
     private:
 
@@ -238,7 +264,11 @@ int main(int argc, char* argv[], char* env[]){
 
     UniformDistribution UD;
     NormalDistribution ND(0.0, 0.35);
-    QuantumRandom n(7691);
+    ExponentialDistribution ED(4.0);
+    QuantumRandom n(7691, ED);
+    for(const float& f : n.get_data()){
+        std::cout << f << std::endl;
+    }
 
     #if DEBUG
     auto end = std::chrono::high_resolution_clock::now();
