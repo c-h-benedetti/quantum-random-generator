@@ -1,5 +1,3 @@
 #define NaturalRandom_VERSION_MAJOR @NaturalRandom_VERSION_MAJOR@
 #define NaturalRandom_VERSION_MINOR @NaturalRandom_VERSION_MINOR@
 
-// When CMake configures this header file the values for @NaturalRandom_VERSION_MAJOR@ and @NaturalRandom_VERSION_MINOR@ will be replaced.
-// With "NaturalRandom" as project name in CMakeLists.txt

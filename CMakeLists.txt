@@ -12,10 +12,27 @@ configure_file(RandConfig.h.in RandConfig.h)
 # Adds the CPR library
 add_subdirectory(cpr)
 
-# add the executable
-add_executable(NaturalRandom main.cpp)
+find_package (Threads)
 
-target_link_libraries(NaturalRandom PUBLIC cpr::cpr)
+# add the executable
+add_executable(NaturalRandom 
+    main.cpp
+    DataCollector.hpp
+    DataCollector.cpp
+    QuantumRandom.hpp
+    QuantumRandom.cpp
+    QuantumRandom.tpp
+    Distribution.hpp
+    Distribution.cpp
+    UniformDistribution.hpp
+    UniformDistribution.cpp
+    NormalDistribution.hpp
+    NormalDistribution.cpp
+    ExponentialDistribution.hpp
+    ExponentialDistribution.cpp
+)
+
+target_link_libraries(NaturalRandom PUBLIC cpr::cpr Threads::Threads)
 
 # Must be after the "add_executable" statement
 # The binary's directory ("build") must be an include directory because the .h containing the version will be generated inside
